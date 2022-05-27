@@ -2,49 +2,77 @@ package plagdetect;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
+
+import logger.Log;
 
 public class PlagiarismDetector implements IPlagiarismDetector {
+	public int n; //n
+	Log log; //log
 	
-	public PlagiarismDetector(int n) {
-		// TODO implement this method
+	//Stores all the things
+	public Map<String, HashSet<String>> nGrams = new HashMap<String, HashSet<String>>();
+	public Map<String,Map<String,Integer>> results = new HashMap<String,Map<String,Integer>>();
+	
+	public PlagiarismDetector(int n) throws IOException {
+		this.n = n;
+		log = new Log(); //Starts log in default location (logs/log.txt)
 	}
 	
 	@Override
 	public int getN() {
-		// TODO Auto-generated method stub
-		return 0;
+		return n;
 	}
 
 	@Override
 	public Collection<String> getFilenames() {
-		// TODO Auto-generated method stub
-		return null;
+		return nGrams.keySet();
 	}
 
 	@Override
 	public Collection<String> getNgramsInFile(String filename) {
-		// TODO Auto-generated method stub
-		return null;
+		return nGrams.get(filename);
 	}
 
 	@Override
 	public int getNumNgramsInFile(String filename) {
-		// TODO Auto-generated method stub
-		return 0;
+		return nGrams.get(filename).size();
 	}
 
 	@Override
 	public Map<String, Map<String, Integer>> getResults() {
-		// TODO Auto-generated method stub
-		return null;
+		return results;
 	}
 
 	@Override
-	public void readFile(File file) throws IOException {
+	public void readFile(File file) throws IOException { //where the magic happens
 		// TODO Auto-generated method stub
 		// most of your work can happen in this method
+		
+		//Part One: Read file & get nGrams
+		log.add(String.format("Began reading file %s", file.getName()));
+		LinkedHashSet<String> NGs = new LinkedHashSet<String>(); //using LinkedHashSet b/c it keeps nGrams in order and doesn't alphabetize them
+		Scanner reader = new Scanner(file);
+		while(reader.hasNextLine()) {
+			String line = reader.nextLine();
+			String[] words = line.split(" ");
+			if(words.length >= n) {
+				for(int count = 0; count < words.length-n+1; count++) {
+					NGs.add(String.format("%s %s %s", words[count], words[count+1], words[count+2]));
+				}
+			}
+		}
+		nGrams.put(file.getName(),NGs);
+		log.add(String.format("Saved nGrams for file %s", file.getName()));
+		
+		//Part Two: Calc nGram commonality
 		
 	}
 
@@ -61,7 +89,7 @@ public class PlagiarismDetector implements IPlagiarismDetector {
 	}
 
 	@Override
-	public void readFilesInDirectory(File dir) throws IOException {
+	public void readFilesInDirectory(File dir) throws IOException { //complete!
 		// delegation!
 		// just go through each file in the directory, and delegate
 		// to the method for reading a file

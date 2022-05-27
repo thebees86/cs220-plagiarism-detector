@@ -22,8 +22,8 @@ public class TestTinyDocs
     
     public void makeDetector(int n) throws Exception {
         // n is the size of an n-gram
-        detector = new PlagiarismDetector(n);
-        detector.readFilesInDirectory(new File(TINYDOCS));
+        detector = new PlagiarismDetector(n); //initialize thingies
+        detector.readFilesInDirectory(new File(TINYDOCS)); //processes all files (in tinydocs)
     }
 
     @Test
